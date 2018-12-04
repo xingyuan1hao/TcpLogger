@@ -1,6 +1,17 @@
-//
-// Created by liushuai on 2018/4/13.
-//
+﻿/*<FH>*************************************************************************
+* 文件名称:SocketLog.cpp
+* 文件标识:
+* 内容摘要:
+* 其它说明:
+* 当前版本: V1.0
+* 作    者:
+* 完成日期:
+* 修改记录1:
+*     修改日期:
+*     版 本 号:
+*     修 改 人:
+*     修改内容:
+**<FH>************************************************************************/
 
 #include <csignal>
 #include "SocketLog.h"
@@ -45,27 +56,37 @@ void SocketLog::send(const void* buf, size_t len) {
     if (!inited)
         return;
 
-    auto size = connectedStreams.size();
+    int size = connectedStreams.size();
     if (size == 0) {
         LOGD("no stream connected now! will not send!");
     } else {
         LOGD("stream connected num=%ld", size);
     }
 
-    for(auto iter = connectedStreams.cbegin(); iter != connectedStreams.cend();) {
+	vector<TCPStream*>::iterator iter;
+    for(iter = connectedStreams.begin(); iter != connectedStreams.end();) 
+	{
         auto& stream = *iter;
 
-        LOGD("try to send to stream:%p, len=%ld", stream, len);
-        auto ret = stream->send(buf, len);
-        if (ret == -1) {
+        LOGD("try to send to stream:%p, len=%ld", *iter, len);
+        int ret = stream->send(buf, len);
+        if (ret == -1) 
+		{
             LOGE("send failed! delete(close) stream");
-            delete stream;
-            iter = connectedStreams.erase(iter);
-        } else {
+			delete stream;
+            iter = connectedStreams.erase(iter);// 
+            //break;
+            //iter++;
+        } 
+		else 
+		{
             LOGD("send success! send len=%ld", len);
             iter++;
         }
+		
     }
+
+	LOGD("brak\r\n");
 }
 
 void SocketLog::send(const char* str) {
@@ -86,18 +107,26 @@ void SocketLog::disconnectAllStreams() {
     connectedStreams.clear();
 }
 
-SocketLog::SocketLog() {
+SocketLog::SocketLog() 
+{
     signal(SIGPIPE, SIG_IGN);
-
+	
+    port = 5000;//监听端口
+    acceptor = nullptr;
+    inited = false;
+	
     START:
     acceptor = new TCPAcceptor(port);
 
-    if (acceptor->start() == 0) {
+    if (acceptor->start() == 0) 
+	{
         LOG("SocketLog start success! port:%d", port);
         startAcceptThread();
         startSendThread();
         inited = true;
-    } else {
+    } 
+	else 
+	{
         LOGE("SocketLog start failed! check your port:%d", port);
         inited = false;
         delete acceptor;
@@ -113,7 +142,8 @@ void SocketLog::startSendThread() {
         LOGD("sendThread running...");
         Msg msg;
 
-        while (true) {
+        while (true) 
+		{
             {
                 std::unique_lock<std::mutex> lock(msgQueueMutex);
                 LOGD("msgQueue.size=%ld, msgQueueCondition will %s", msgQueue.size(),
@@ -131,21 +161,26 @@ void SocketLog::startSendThread() {
     });
 }
 
-void SocketLog::startAcceptThread() {
+void SocketLog::startAcceptThread() 
+{
     new std::thread([this]{
         LOGD("acceptThread running...");
 
-        while (true) {
+        while (true) 
+		{
             LOGD("wait for accept...");
             TCPStream* stream = acceptor->accept();
 
-            if (stream) {
+            if (stream) 
+			{
                 LOGD("catch an accept:%p", stream);
                 stream->send("Welcome to SocketLog!\n");
                 streamMutex.lock();
                 connectedStreams.push_back(stream);
                 streamMutex.unlock();
-            } else {
+            } 
+			else 
+			{
                 LOGE("accept failed! will stop acceptThread!");
                 inited = false;
                 delete acceptor;

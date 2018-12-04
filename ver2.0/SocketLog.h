@@ -1,6 +1,18 @@
-//
-// Created by liushuai on 2018/4/13.
-//
+﻿/*<FH>*************************************************************************
+* 文件名称:SocketLog.h
+* 文件标识:
+* 内容摘要:
+* 其它说明:
+* 当前版本: V1.0
+* 作    者:
+* 完成日期:
+* 修改记录1:
+*     修改日期:
+*     版 本 号:
+*     修 改 人:
+*     修改内容:
+**<FH>************************************************************************/
+
 
 #ifndef SOCKETLOG_H
 #define SOCKETLOG_H
@@ -35,9 +47,9 @@ private:
     void startAcceptThread();
     void startSendThread();
 
-    int port = 6666;
-    TCPAcceptor* acceptor = nullptr;
-    bool inited = false;
+    int port;
+    TCPAcceptor* acceptor;
+    bool inited;
 
     vector<TCPStream*> connectedStreams;
     std::mutex streamMutex;

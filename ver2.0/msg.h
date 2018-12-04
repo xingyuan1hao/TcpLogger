@@ -1,6 +1,18 @@
-//
-// Created by liushuai on 2018/8/9.
-//
+﻿/*<FH>*************************************************************************
+* 文件名称:msg.h
+* 文件标识:
+* 内容摘要:
+* 其它说明:
+* 当前版本: V1.0
+* 作    者:
+* 完成日期:
+* 修改记录1:
+*     修改日期:
+*     版 本 号:
+*     修 改 人:
+*     修改内容:
+**<FH>************************************************************************/
+
 
 #ifndef MSG_H
 #define MSG_H
@@ -11,13 +23,13 @@
 struct Msg {
     typedef unsigned char byte;
 
-    size_t len = 0;
-    byte* data = nullptr;
+    unsigned int len;
+    byte* data;
 
-    inline void initMsg(const void* data = nullptr, size_t len = 0) {
-        if (data == nullptr || len == 0) {
+    inline void initMsg(const void* data = nullptr, unsigned int len = 0) {
+        if (data == NULL || len == 0) {
             this->len  = 0;
-            this->data = nullptr;
+            this->data = NULL;
             return;
         }
 
@@ -29,10 +41,10 @@ struct Msg {
     inline void moveMsg(Msg& msg) {
         this->len   = msg.len;
         this->data  = msg.data;
-        msg.data = nullptr;
+        msg.data = NULL;
     }
 
-    explicit Msg(const void* data = nullptr, size_t len = 0) {
+    explicit Msg(const void* data = NULL, size_t len = 0) {
         initMsg(data, len);
     }
 
